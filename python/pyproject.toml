@@ -1,0 +1,15 @@
+[project]
+name = "coyote-controller"
+version = "1.0.0"
+description = "DG-LAB Coyote 3.0 BLE Controller (Python / bleak)"
+requires-python = ">=3.9"
+dependencies = [
+    "bleak>=0.21.0",
+]
+
+[project.scripts]
+coyote-demo = "coyote_controller:interactive_demo"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.backends._legacy:_Backend"

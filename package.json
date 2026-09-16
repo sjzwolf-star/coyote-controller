@@ -1,0 +1,24 @@
+{
+  "name": "coyote-controller",
+  "version": "1.0.0",
+  "description": "DG-LAB Coyote 3.0 BLE Web Bluetooth Controller - 自定义蓝牙控制应用",
+  "homepage": "https://sjzwolf-star.github.io/coyote-controller/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sjzwolf-star/coyote-controller.git"
+  },
+  "scripts": {
+    "dev": "npx http-server web -p 8080 --cors -c-1",
+    "build": "echo 'Static site, no build step needed'"
+  },
+  "keywords": [
+    "ble",
+    "bluetooth",
+    "coyote",
+    "dg-lab",
+    "e-stim",
+    "web-bluetooth"
+  ],
+  "author": "sjzwolf-star",
+  "license": "MIT"
+}
