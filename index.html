@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>郊狼 3.0 蓝牙控制器</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --card: #1a1d28;
+            --border: #2a2d3a;
+            --text: #e4e6eb;
+            --text-dim: #8b8e9c;
+            --accent: #4a9eff;
+            --accent-hover: #3a8eef;
+            --danger: #ff4757;
+            --danger-hover: #ee3547;
+            --success: #2ed573;
+            --warn: #ffa502;
+            --radius: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: rgba(46, 213, 115, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+        }
+
+        .status-disconnected {
+            background: rgba(255, 71, 87, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        .battery-badge {
+            background: rgba(74, 158, 255, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--text);
+            background: var(--border);
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #353846;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: var(--danger-hover);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+
+        .btn-lg {
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .channel-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .channel-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .intensity-display {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .intensity-display small {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .btn-group .btn-sm {
+            flex: 1;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 8px 0;
+            accent-color: var(--accent);
+        }
+
+        select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.85rem;
+        }
+
+        .log-area {
+            background: #0a0c12;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: "Cascadia Code", "Consolas", monospace;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            height: 180px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: var(--text-dim);
+        }
+
+        .safety-note {
+            background: rgba(255, 165, 2, 0.08);
+            border: 1px solid rgba(255, 165, 2, 0.2);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 0.78rem;
+            color: var(--warn);
+            margin-bottom: 8px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .input-row label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            min-width: 80px;
+        }
+
+        .input-row input[type="number"] {
+            width: 60px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.72rem;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 480px) {
+            .channel-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>郊狼 3.0 蓝牙控制器</h1>
+        <div class="subtitle">DG-LAB Coyote V3 — Web Bluetooth 直接控制 | 协议来源: DG-LAB Open Source</div>
+
+        <!-- Connection -->
+        <div class="card">
+            <div class="card-title">设备连接</div>
+            <div class="status-row" style="margin-bottom: 12px;">
+                <span id="connection-status" class="status-badge status-disconnected">未连接</span>
+                <span id="battery-level" class="status-badge battery-badge">0%</span>
+            </div>
+            <div class="btn-row">
+                <button id="btn-connect" class="btn btn-primary">连接设备</button>
+                <button id="btn-disconnect" class="btn" disabled>断开</button>
+            </div>
+        </div>
+
+        <!-- Safety -->
+        <div class="card">
+            <div class="card-title">安全设置</div>
+            <div class="safety-note">
+                软上限限制通道最大强度，设备关机后仍然保存。每次连接后建议先设置一个较低的值。
+            </div>
+            <div class="input-row">
+                <label>A 通道上限</label>
+                <input type="number" id="softcap-a" value="50" min="0" max="200">
+                <label>B 通道上限</label>
+                <input type="number" id="softcap-b" value="50" min="0" max="200">
+                <button id="btn-update-softcap" class="btn btn-sm">应用</button>
+            </div>
+        </div>
+
+        <!-- Intensity Control -->
+        <div class="card">
+            <div class="card-title">通道强度控制</div>
+            <div class="channel-grid">
+                <div class="channel-box">
+                    <div class="channel-label">A 通道</div>
+                    <div class="intensity-display"><span id="intensity-a">0</span><small> / 200</small></div>
+                    <div class="btn-group">
+                        <button id="btn-a-down5" class="btn btn-sm">-5</button>
+                        <button id="btn-a-down" class="btn btn-sm">-1</button>
+                        <button id="btn-a-up" class="btn btn-sm">+1</button>
+                        <button id="btn-a-up5" class="btn btn-sm">+5</button>
+                    </div>
+                    <input type="range" id="slider-a" min="0" max="200" value="0">
+                </div>
+                <div class="channel-box">
+                    <div class="channel-label">B 通道</div>
+                    <div class="intensity-display"><span id="intensity-b">0</span><small> / 200</small></div>
+                    <div class="btn-group">
+                        <button id="btn-b-down5" class="btn btn-sm">-5</button>
+                        <button id="btn-b-down" class="btn btn-sm">-1</button>
+                        <button id="btn-b-up" class="btn btn-sm">+1</button>
+                        <button id="btn-b-up5" class="btn btn-sm">+5</button>
+                    </div>
+                    <input type="range" id="slider-b" min="0" max="200" value="0">
+                </div>
+            </div>
+            <div class="btn-row" style="margin-top: 8px;">
+                <button id="btn-set-sliders" class="btn btn-sm">设置滑块值</button>
+                <button id="btn-emergency" class="btn btn-danger btn-sm" disabled>紧急停止（归零）</button>
+            </div>
+        </div>
+
+        <!-- Waveform -->
+        <div class="card">
+            <div class="card-title">波形输出</div>
+            <div class="input-row">
+                <label>波形</label>
+                <select id="waveform-select" disabled>
+                    <option value="breathing">呼吸</option>
+                    <option value="tide">潮汐</option>
+                    <option value="steady">持续</option>
+                    <option value="pulse">脉冲</option>
+                    <option value="off">无输出</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <label>输出通道</label>
+                <select id="channel-select" disabled>
+                    <option value="A">仅 A 通道</option>
+                    <option value="B">仅 B 通道</option>
+                    <option value="AB">A+B 双通道</option>
+                </select>
+            </div>
+            <div class="btn-row" style="margin-top: 8px;">
+                <button id="btn-start" class="btn btn-success btn-lg" disabled>开始输出</button>
+                <button id="btn-stop" class="btn btn-lg" disabled>停止输出</button>
+            </div>
+        </div>
+
+        <!-- Log -->
+        <div class="card">
+            <div class="card-title">运行日志</div>
+            <div id="log-area" class="log-area"></div>
+        </div>
+
+        <div class="footer">
+            协议: DG-LAB Open Source (github.com/DG-LAB-OPENSOURCE)<br>
+            Web Bluetooth API | Chrome/Edge required | BLE name: 47L121000<br>
+            本工具仅供硬件开发与协议研究使用，请遵守设备安全规范
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
